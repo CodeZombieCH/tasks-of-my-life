@@ -3,6 +3,21 @@
 A task list for a whole life
 
 
+## Usage
+
+Start server
+
+	cd server
+	npm run serve
+
+Start client
+
+	cd client
+	npm run serve
+
+Open browser and navigate to http://localhost:8080/
+
+
 ## Componentes
 
 ### Client
