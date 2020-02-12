@@ -6,7 +6,10 @@
 
     <template v-else>
       <div>
-        <span><strong>{{ node.attributes.title }}</strong> ({{ node.attributes.children.length }})</span>
+        <span><strong>{{ node.attributes.title }}</strong></span>
+        <span class="meta"> #{{ node.id }}</span>
+        <span class="meta"> ({{ node.attributes.children.length }})</span>
+        <span class="operations">[<a v-on:click="add" href="#">+</a>]</span>
       </div>
       <ul>
         <TreeItem
@@ -53,11 +56,18 @@ export default {
           this.loading = false
           console.log(error)
         })
+    },
+    add () {
+      console.log(`Creating child node for node id ${this.nodeId}`)
     }
   }
 }
 </script>
 
 <style scoped lang="scss">
+
+.meta {
+  color: dimgray;
+}
 
 </style>
