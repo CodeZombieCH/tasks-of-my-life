@@ -5,7 +5,10 @@
     </template>
 
     <template v-else>
-      <div>
+      <div v-bind:class="{ completed: completed }" v-on:click="dumpNode">
+        <span>
+          <input type="checkbox" v-model="completed" v-if="node.id !== 0" style="margin-right: 1em;">
+        </span>
         <span><strong>{{ node.attributes.title }}</strong></span>
         <span class="meta"> #{{ node.id }}</span>
         <span class="meta"> ({{ node.attributes.children.length }})</span>
@@ -48,9 +51,9 @@ export default {
       this.loading = true
       persistance.getNode(this.nodeId)
         .then(node => {
-          this.loading = false
           this.node = node
-          console.log(`Loading node ${this.nodeId} completed`)
+          console.log(`Loading node ${this.nodeId} completed`, this.node)
+          this.loading = false
         })
         .catch(error => {
           this.loading = false
@@ -59,6 +62,27 @@ export default {
     },
     add () {
       console.log(`Creating child node for node id ${this.nodeId}`)
+    },
+    dumpNode () {
+      console.log(this.node)
+    }
+  },
+  computed: {
+    completed: {
+      get () {
+        return !!this.node.attributes.completionDate
+      },
+      set (value) {
+        if (value === true) {
+          this.node.attributes.completionDate = new Date().toISOString()
+        } else {
+          this.node.attributes.completionDate = null
+        }
+
+        // Send updated completion date to server
+        persistance.updateCompletionDate(this.node)
+          .then(completionDate => console.log(completionDate))
+      }
     }
   }
 }
@@ -68,6 +92,10 @@ export default {
 
 .meta {
   color: dimgray;
+}
+
+.completed {
+  text-decoration: line-through;
 }
 
 </style>
