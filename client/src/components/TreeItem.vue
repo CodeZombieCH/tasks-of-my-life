@@ -12,7 +12,7 @@
         <span><strong>{{ node.attributes.title }}</strong></span>
         <span class="meta"> #{{ node.id }}</span>
         <span class="meta"> ({{ node.attributes.children.length }})</span>
-        <span class="operations">[<a v-on:click="add" href="#">+</a>]</span>
+        <span class="operations"><a v-on:click="add" href="#">[+]</a></span>
       </div>
       <ul>
         <TreeItem
@@ -88,7 +88,7 @@ export default {
 }
 </script>
 
-<style scoped lang="scss">
+<style lang="scss">
 
 .meta {
   color: dimgray;
@@ -96,6 +96,17 @@ export default {
 
 .completed {
   text-decoration: line-through;
+}
+
+.operations {
+  a {
+    text-decoration: none;
+
+    &:hover, &:active, &:focus{
+        color: white;
+        background: black;
+    }
+  }
 }
 
 </style>
