@@ -23,9 +23,12 @@ class Persistance {
         if (error) throw error
 
         // Load front matter
-        const content = frontMatter(data)
-        content.id = nodeId
-        resolve(content)
+        const node = frontMatter(data)
+
+        // Enrich with node ID
+        node.id = nodeId
+
+        resolve(node)
       })
     })
   }
@@ -60,6 +63,7 @@ class Persistance {
       id: nextId,
       attributes: {
         title: 'New node',
+        completionDate: null,
         children: []
       },
       body: ''

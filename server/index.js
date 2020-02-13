@@ -20,4 +20,23 @@ app.get('/node/:id', function (req, res) {
     })
 })
 
+app.put('/node/:id/completionDate', function (req, res) {
+  var nodeId = parseInt(req.params.id)
+
+  persistance.getNode(nodeId)
+    .then(node => {
+      const completionDate = req.body.completionDate
+      node.attributes.completionDate = completionDate
+      console.log(node)
+      return persistance.setNode(node)
+    })
+    .then(_ => {
+      return persistance.getNode(nodeId)
+    })
+    .then(updatedNode => {
+      res.status(200)
+      res.json({ completionDate: updatedNode.attributes.completionDate })
+    })
+})
+
 app.listen(port, () => console.log(`Example app listening on port ${port}!`))
