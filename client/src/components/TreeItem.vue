@@ -1,7 +1,7 @@
 <template>
   <li>
     <template v-if="loading">
-      <p>Loading...</p>
+      <p>Loading node #{{ node.id }}...</p>
     </template>
 
     <template v-else>
