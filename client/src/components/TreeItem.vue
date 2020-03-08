@@ -27,8 +27,7 @@
 
 <script>
 
-import { Persistance } from '@/persistance.js'
-const persistance = new Persistance()
+import store from '../store'
 
 export default {
   name: 'TreeItem',
@@ -45,20 +44,19 @@ export default {
     this.loadNode()
   },
   methods: {
-    loadNode () {
-      console.log(`Loading node ${this.nodeId}`)
+    async loadNode () {
+      console.log(`Loading node ${this.nodeId}...`)
 
       this.loading = true
-      persistance.getNode(this.nodeId)
-        .then(node => {
-          this.node = node
-          console.log(`Loading node ${this.nodeId} completed`, this.node)
-          this.loading = false
-        })
-        .catch(error => {
-          this.loading = false
-          console.log(error)
-        })
+      try {
+        const node = await store.getTaskById(this.nodeId)
+        this.node = node
+        console.log(`Loading node ${this.nodeId} completed`, this.node)
+        this.loading = false
+      } catch (ex) {
+        this.loading = false
+        console.log(ex)
+      }
     },
     add () {
       console.log(`Creating child node for node id ${this.nodeId}`)
@@ -72,16 +70,18 @@ export default {
       get () {
         return !!this.node.attributes.completionDate
       },
-      set (value) {
+      async set (value) {
+        let completionDate
         if (value === true) {
-          this.node.attributes.completionDate = new Date().toISOString()
+          completionDate = new Date().toISOString()
         } else {
-          this.node.attributes.completionDate = null
+          completionDate = null
         }
 
+        console.log(`Set completion date to ${completionDate}`, this.node)
+
         // Send updated completion date to server
-        persistance.updateCompletionDate(this.node)
-          .then(completionDate => console.log(completionDate))
+        await store.setTaskCompletionDate(this.node, completionDate)
       }
     }
   }

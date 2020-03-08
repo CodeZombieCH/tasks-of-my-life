@@ -25,7 +25,7 @@ export class Persistance {
 
   async updateCompletionDate (node) {
     try {
-    // Default options are marked with *
+      // Default options are marked with *
       const response = await fetch(`${this.baseUrl}node/${node.id}/completionDate`, {
         method: 'PUT',
         cache: 'default', // *default, no-cache, reload, force-cache, only-if-cached
