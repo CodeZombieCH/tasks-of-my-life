@@ -10,33 +10,43 @@ app.use(bodyParser.json())
 const Persistance = require('./persistance')
 const persistance = new Persistance('../data/')
 
-app.get('/node/:id', function (req, res) {
-  var nodeId = parseInt(req.params.id)
+app.get('/node/:id', async function (req, res) {
+  try {
+    var nodeId = parseInt(req.params.id)
 
-  persistance.getNode(nodeId)
-    .then((node) => {
-      res.status(200)
-      res.json(node)
-    })
+    const node = await persistance.getNode(nodeId)
+    res.status(200)
+    res.json(node)
+  } catch (ex) {
+    console.error(ex)
+  }
 })
 
-app.put('/node/:id/completionDate', function (req, res) {
-  var nodeId = parseInt(req.params.id)
+app.put('/node/:id/completionDate', async function (req, res) {
+  try {
+    var nodeId = parseInt(req.params.id)
 
-  persistance.getNode(nodeId)
-    .then(node => {
-      const completionDate = req.body.completionDate
-      node.attributes.completionDate = completionDate
-      console.log(node)
-      return persistance.setNode(node)
-    })
-    .then(_ => {
-      return persistance.getNode(nodeId)
-    })
-    .then(updatedNode => {
-      res.status(200)
-      res.json({ completionDate: updatedNode.attributes.completionDate })
-    })
+    // Load node
+    let node = await persistance.getNode(nodeId)
+
+    if (!node) {
+      res.status(404)
+      return
+    }
+
+    // Update node
+    const completionDate = req.body.completionDate
+    node.attributes.completionDate = completionDate
+    await persistance.setNode(node)
+
+    // Reload update node
+    node = await persistance.getNode(nodeId)
+
+    res.status(200)
+    res.json({ completionDate: node.attributes.completionDate })
+  } catch (ex) {
+    console.error(ex)
+  }
 })
 
-app.listen(port, () => console.log(`Example app listening on port ${port}!`))
+app.listen(port, () => console.log(`tasks-of-my-life-server listening on port ${port}!`))
