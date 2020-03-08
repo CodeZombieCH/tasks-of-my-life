@@ -3,10 +3,10 @@ export class Persistance {
     this.baseUrl = 'http://localhost:3000/'
   }
 
-  async getNode (nodeId) {
+  async getTask (taskId) {
     try {
     // Default options are marked with *
-      const response = await fetch(`${this.baseUrl}node/${nodeId}`, {
+      const response = await fetch(`${this.baseUrl}tasks/${taskId}`, {
         method: 'GET',
         cache: 'default', // *default, no-cache, reload, force-cache, only-if-cached
         credentials: 'same-origin',
@@ -18,15 +18,15 @@ export class Persistance {
 
       const data = await response.json()
       return data
-    } catch (err) {
-      console.log('getNode failed', err)
+    } catch (ex) {
+      console.error('getTask failed', ex)
     }
   }
 
-  async updateCompletionDate (node) {
+  async updateCompletionDate (task) {
     try {
       // Default options are marked with *
-      const response = await fetch(`${this.baseUrl}node/${node.id}/completionDate`, {
+      const response = await fetch(`${this.baseUrl}tasks/${task.id}/completionDate`, {
         method: 'PUT',
         cache: 'default', // *default, no-cache, reload, force-cache, only-if-cached
         credentials: 'same-origin',
@@ -34,20 +34,20 @@ export class Persistance {
           'Content-Type': 'application/json'
         },
         redirect: 'follow',
-        body: JSON.stringify({ completionDate: node.attributes.completionDate })
+        body: JSON.stringify({ completionDate: task.attributes.completionDate })
       })
 
       const data = await response.json()
       return data
-    } catch (err) {
-      console.log('updateCompletionDate failed', err)
+    } catch (ex) {
+      console.error('updateCompletionDate failed', ex)
     }
   }
 
-  async createChild (parentNodeId, node) {
+  async createChildTask (parentTaskId, task) {
     try {
-      const url = `${this.baseUrl}node?` + new URLSearchParams({
-        parentNodeId
+      const url = `${this.baseUrl}tasks?` + new URLSearchParams({
+        parentTaskId
       })
       console.log(url)
 
@@ -59,13 +59,13 @@ export class Persistance {
           'Content-Type': 'application/json'
         },
         redirect: 'follow',
-        body: JSON.stringify(node)
+        body: JSON.stringify(task)
       })
 
       const data = await response.json()
       return data
-    } catch (err) {
-      console.log('createNode failed', err)
+    } catch (ex) {
+      console.error('createChildTask failed', ex)
     }
   }
 }

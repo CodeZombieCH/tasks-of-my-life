@@ -1,7 +1,7 @@
 <template>
   <div>
     <ul>
-      <TreeItem :nodeId="0"></TreeItem>
+      <TreeItem :taskId="0"></TreeItem>
     </ul>
   </div>
 </template>

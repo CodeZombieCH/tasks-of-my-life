@@ -3,69 +3,69 @@ const Persistance = require('../persistance')
 describe('The Persistance class', () => {
   const persistance = new Persistance('../data/')
 
-  it('can read the root node correctly', async () => {
-    const node = await persistance.getNode(0)
-    expect(node).toBeDefined()
-    expect(node.id).toBe(0)
+  it('can read the root task correctly', async () => {
+    const task = await persistance.getTask(0)
+    expect(task).toBeDefined()
+    expect(task.id).toBe(0)
   })
 
-  it('can mark a node as completed by setting a completion date', async () => {
+  it('can mark a task as completed by setting a completion date', async () => {
     // Arrange
-    let node = await persistance.getNode(1)
+    let task = await persistance.getTask(1)
 
     // Act
     const completionDate = new Date().toISOString()
-    node.attributes.completionDate = completionDate
-    await persistance.setNode(node)
+    task.attributes.completionDate = completionDate
+    await persistance.setTask(task)
 
     // Assert
-    node = await persistance.getNode(1)
+    task = await persistance.getTask(1)
 
-    expect(node).toBeDefined()
-    expect(node.id).toBe(1)
-    expect(node.attributes.completionDate).toBe(completionDate)
+    expect(task).toBeDefined()
+    expect(task.id).toBe(1)
+    expect(task.attributes.completionDate).toBe(completionDate)
   })
 
-  it('can create a new child node', async () => {
+  it('can create a new child task', async () => {
     // Arrange
-    const parentNodeId = 1
-    const node = {
+    const parentTaskId = 1
+    const task = {
       attributes: {
-        title: 'new child node'
+        title: 'new child task'
       }
     }
 
     // Act
-    const newChildId = await persistance.createChild(parentNodeId, node)
+    const newChildId = await persistance.createChild(parentTaskId, task)
 
     // Assert
-    // Assert child node
+    // Assert child task
     expect(newChildId).toBeDefined()
 
-    const childNode = await persistance.getNode(newChildId)
+    const childTask = await persistance.getTask(newChildId)
 
-    expect(childNode).toBeDefined()
-    expect(childNode.id).toBe(newChildId)
-    expect(childNode.attributes.completionDate).toBe(null)
-    expect(childNode.attributes.children).toBeDefined()
-    expect(childNode.attributes.children.length).toBe(0)
+    expect(childTask).toBeDefined()
+    expect(childTask.id).toBe(newChildId)
+    expect(childTask.attributes.completionDate).toBe(null)
+    expect(childTask.attributes.children).toBeDefined()
+    expect(childTask.attributes.children.length).toBe(0)
 
-    // Assert parent node
-    const actualParentNode = await persistance.getNode(parentNodeId)
-    expect(actualParentNode.attributes.children).toBeDefined()
-    expect(actualParentNode.attributes.children).toContain(newChildId)
+    // Assert parent task
+    const actualParentTask = await persistance.getTask(parentTaskId)
+    expect(actualParentTask.attributes.children).toBeDefined()
+    expect(actualParentTask.attributes.children).toContain(newChildId)
   })
 
-  it('cannot create a new child node if parent ID is missing', async () => {
+  it('cannot create a new child task if parent ID is missing', async () => {
     // Arrange
-    const parentNodeId = null
-    const node = {
+    const parentTaskId = null
+    const task = {
       attributes: {
-        title: 'new child node'
+        title: 'new child task'
       }
     }
 
     // Act
-    await expectAsync(persistance.createChild(parentNodeId, node)).toBeRejected('Not a valid integer')
+    await expectAsync(persistance.createChild(parentTaskId, task)).toBeRejected('Not a valid integer')
   })
 })

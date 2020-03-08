@@ -1,10 +1,14 @@
 
-# Create new child
-POST http://localhost:3000/node?parentNodeId=2
+### Get task
+GET http://localhost:3000/tasks/2
+
+
+### Create new child
+POST http://localhost:3000/tasks?parentTaskId=2
 Content-Type: application/json
 
 {
   "attributes": {
-    "title": "new node created by REST client"
+    "title": "new task created by REST client"
   }
 }

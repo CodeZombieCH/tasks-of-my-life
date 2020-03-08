@@ -10,71 +10,71 @@ app.use(bodyParser.json())
 const Persistance = require('./persistance')
 const persistance = new Persistance('../data/')
 
-app.get('/node/:id', async function (req, res) {
+app.get('/tasks/:id', async function (req, res) {
   try {
-    var nodeId = parseInt(req.params.id)
+    var taskId = parseInt(req.params.id)
 
-    const node = await persistance.getNode(nodeId)
+    const task = await persistance.getTask(taskId)
     res.status(200)
-    res.json(node)
+    res.json(task)
   } catch (ex) {
     console.error(ex)
   }
 })
 
-app.put('/node/:id/completionDate', async function (req, res) {
+app.put('/tasks/:id/completionDate', async function (req, res) {
   try {
-    var nodeId = parseInt(req.params.id)
+    var taskId = parseInt(req.params.id)
 
-    // Load node
-    let node = await persistance.getNode(nodeId)
+    // Load task
+    let task = await persistance.getTask(taskId)
 
-    if (!node) {
+    if (!task) {
       res.status(404)
       return
     }
 
-    // Update node
+    // Update task
     const completionDate = req.body.completionDate
-    node.attributes.completionDate = completionDate
-    await persistance.setNode(node)
+    task.attributes.completionDate = completionDate
+    await persistance.setTask(task)
 
-    // Reload update node
-    node = await persistance.getNode(nodeId)
+    // Reload update task
+    task = await persistance.getTask(taskId)
 
     res.status(200)
-    res.json({ completionDate: node.attributes.completionDate })
+    res.json({ completionDate: task.attributes.completionDate })
   } catch (ex) {
     console.error(ex)
   }
 })
 
-app.post('/node', async function (req, res) {
+app.post('/tasks', async function (req, res) {
   try {
-    const parentNodeId = parseInt(req.query.parentNodeId)
-    const node = req.body
+    const parentTaskId = parseInt(req.query.parentTaskId)
+    const task = req.body
 
     // Validate
-    if (!Number.isInteger(parentNodeId)) {
+    if (!Number.isInteger(parentTaskId)) {
       res.status(400)
-      res.json({ error: 'Invalid/missing parentNodeId query string' })
+      res.json({ error: 'Invalid/missing parentTaskId query string' })
       return
     }
 
-    if (typeof node !== 'object') {
+    if (typeof task !== 'object') {
       res.status(400)
       res.json({ error: 'Invalid/missing request body' })
       return
     }
 
-    // Create node
-    const newChildId = await persistance.createChild(parentNodeId, node)
+    // Create task
+    const newChildId = await persistance.createChild(parentTaskId, task)
 
-    // Reload update node
-    const createdNode = await persistance.getNode(newChildId)
+    // Reload created task
+    const createdTask = await persistance.getTask(newChildId)
 
     res.status(201)
-    res.json(createdNode)
+    res.json(createdTask)
   } catch (ex) {
     console.error(ex)
   }

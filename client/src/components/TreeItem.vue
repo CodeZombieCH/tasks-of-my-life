@@ -1,24 +1,24 @@
 <template>
   <li>
     <template v-if="loading">
-      <p>Loading node #{{ node.id }}...</p>
+      <p>Loading task #{{ task.id }}...</p>
     </template>
 
     <template v-else>
-      <div v-bind:class="{ completed: completed }" v-on:click="dumpNode">
+      <div v-bind:class="{ completed: completed }" v-on:click="dumpTask">
         <span>
-          <input type="checkbox" v-model="completed" v-if="node.id !== 0" style="margin-right: 1em;">
+          <input type="checkbox" v-model="completed" v-if="task.id !== 0" style="margin-right: 1em;">
         </span>
-        <span><strong>{{ node.attributes.title }}</strong></span>
-        <span class="meta"> #{{ node.id }}</span>
-        <span class="meta"> ({{ node.attributes.children.length }})</span>
+        <span><strong>{{ task.attributes.title }}</strong></span>
+        <span class="meta"> #{{ task.id }}</span>
+        <span class="meta"> ({{ task.attributes.children.length }})</span>
         <span class="operations"><a v-on:click="add" href="#">[+]</a></span>
       </div>
       <ul>
         <TreeItem
-          v-for="(child, index) in node.attributes.children"
+          v-for="(child, index) in task.attributes.children"
           :key="index"
-          :nodeId="child">
+          :taskId="child">
         </TreeItem>
       </ul>
     </template>
@@ -32,26 +32,26 @@ import store from '../store'
 export default {
   name: 'TreeItem',
   props: {
-    nodeId: Number
+    taskId: Number
   },
   data () {
     return {
       loading: false,
-      node: {}
+      task: {}
     }
   },
   created () {
-    this.loadNode()
+    this.loadTask()
   },
   methods: {
-    async loadNode () {
-      console.log(`Loading node ${this.nodeId}...`)
+    async loadTask () {
+      console.log(`Loading task ${this.taskId}...`)
 
       this.loading = true
       try {
-        const node = await store.getTaskById(this.nodeId)
-        this.node = node
-        console.log(`Loading node ${this.nodeId} completed`, this.node)
+        const task = await store.getTaskById(this.taskId)
+        this.task = task
+        console.log(`Loading task ${this.taskId} completed`, this.task)
         this.loading = false
       } catch (ex) {
         this.loading = false
@@ -59,18 +59,18 @@ export default {
       }
     },
     async add () {
-      console.log(`Creating child node for node id ${this.nodeId}`)
+      console.log(`Creating child task for task ID ${this.taskId}`)
       const name = window.prompt('Name')
-      await store.addTask(this.nodeId, name)
+      await store.addTask(this.taskId, name)
     },
-    dumpNode () {
-      console.log(this.node)
+    dumpTask () {
+      console.log(this.task)
     }
   },
   computed: {
     completed: {
       get () {
-        return !!this.node.attributes.completionDate
+        return !!this.task.attributes.completionDate
       },
       async set (value) {
         let completionDate
@@ -80,10 +80,10 @@ export default {
           completionDate = null
         }
 
-        console.log(`Set completion date to ${completionDate}`, this.node)
+        console.log(`Set completion date to ${completionDate}`, this.task)
 
         // Send updated completion date to server
-        await store.setTaskCompletionDate(this.node, completionDate)
+        await store.setTaskCompletionDate(this.task, completionDate)
       }
     }
   }

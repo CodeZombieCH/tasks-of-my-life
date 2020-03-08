@@ -10,82 +10,82 @@ class Persistance {
   }
 
   getRoot () {
-    return this.getNode(0)
+    return this.getTask(0)
   }
 
-  getNode (nodeId) {
+  getTask (taskId) {
     return new Promise((resolve) => {
-      if (!Number.isInteger(nodeId)) {
+      if (!Number.isInteger(taskId)) {
         throw new Error('Not a valid integer')
       }
 
-      fs.readFile(`${this.dataDirectoryPath}/${nodeId}.md`, 'utf8', (error, data) => {
+      fs.readFile(`${this.dataDirectoryPath}/${taskId}.md`, 'utf8', (error, data) => {
         if (error) throw error
 
         // Load front matter
-        const node = frontMatter(data)
+        const task = frontMatter(data)
 
-        // Enrich with node ID
-        node.id = nodeId
+        // Enrich with task ID
+        task.id = taskId
 
-        resolve(node)
+        resolve(task)
       })
     })
   }
 
-  setNode (node) {
+  setTask (task) {
     return new Promise((resolve) => {
       // TODO: Validate
-      if (typeof node.id === 'undefined') {
-        throw Error('Node ID undefined')
+      if (typeof task.id === 'undefined') {
+        throw Error('Task ID undefined')
       }
 
       let fileContent = ''
       fileContent += '---\n'
-      fileContent += jsYaml.safeDump(node.attributes)
+      fileContent += jsYaml.safeDump(task.attributes)
       fileContent += '---\n'
       fileContent += '\n'
-      fileContent += node.body
+      fileContent += task.body
 
-      fs.writeFile(`${this.dataDirectoryPath}/${node.id}.md`, fileContent, (error) => {
+      fs.writeFile(`${this.dataDirectoryPath}/${task.id}.md`, fileContent, (error) => {
         if (error) throw error
         resolve(fileContent)
       })
     })
   }
 
-  async createChild (parentNodeId, node) {
-    const parentNode = await this.getNode(parentNodeId)
+  async createChildTask (parentTaskId, task) {
+    const parentTask = await this.getTask(parentTaskId)
 
-    if (!parentNode) {
-      throw new Error(`Parent with ID ${parentNodeId} does not exist`)
+    if (!parentTask) {
+      throw new Error(`Parent task with ID ${parentTaskId} does not exist`)
     }
 
-    // Create new child node
+    // Create new task
     const nextId = await this.findNextId()
-    const newNode = {
+    const newTask = {
       id: nextId,
       attributes: {
-        title: node.attributes.title,
+        title: task.attributes.title,
         completionDate: null,
         children: []
       },
       body: ''
     }
 
-    // Save new node
-    await this.setNode(newNode)
+    // Save new task
+    await this.setTask(newTask)
 
-    // Update parent node
-    if (typeof parentNode.attributes.children === 'undefined') {
-      parentNode.attributes.children = []
+    // Update parent task
+    if (typeof parentTask.attributes.children === 'undefined') {
+      parentTask.attributes.children = []
     }
-    parentNode.attributes.children.push(nextId)
-    await this.setNode(parentNode)
+    parentTask.attributes.children.push(nextId)
+    await this.setTask(parentTask)
 
-    // We intentionally do not return the created node but only its ID
-    // If the data of the newly created node is needed, it should be reloaded by client
-    return newNode.id
+    // We intentionally do not return the created task but only its ID
+    // If the data of the newly created task is needed, it should be reloaded by caller
+    return newTask.id
   }
 
   findNextId () {

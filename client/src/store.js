@@ -13,7 +13,7 @@ class Store {
 
     if (typeof task === 'undefined') {
       // Load from server
-      task = await persistance.getNode(taskId)
+      task = await persistance.getTask(taskId)
 
       console.log('Loaded task from server', task)
 
@@ -47,7 +47,7 @@ class Store {
     }
 
     // Send to server
-    newTask = await persistance.createChild(parentTaskId, newTask)
+    newTask = await persistance.createChildTask(parentTaskId, newTask)
 
     // Add to store
     this.tasks.set(newTask.id, newTask)
