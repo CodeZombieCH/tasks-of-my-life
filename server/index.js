@@ -68,7 +68,7 @@ app.post('/tasks', async function (req, res) {
     }
 
     // Create task
-    const newChildId = await persistance.createChild(parentTaskId, task)
+    const newChildId = await persistance.createChildTask(parentTaskId, task)
 
     // Reload created task
     const createdTask = await persistance.getTask(newChildId)
