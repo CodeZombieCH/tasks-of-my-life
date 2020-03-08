@@ -10,9 +10,9 @@
           <input type="checkbox" v-model="completed" v-if="task.id !== 0" style="margin-right: 1em;">
         </span>
         <span><strong>{{ task.attributes.title }}</strong></span>
-        <span class="meta"> #{{ task.id }}</span>
-        <span class="meta"> ({{ task.attributes.children.length }})</span>
-        <span class="operations"><a v-on:click="add" href="#">[+]</a></span>
+        <span class="meta">&nbsp;#{{ task.id }}</span>
+        <span class="meta">&nbsp;({{ task.attributes.children.length }})</span>
+        <span class="operations">&nbsp;<a v-on:click="add" href="#">[+]</a></span>
       </div>
       <ul>
         <TreeItem
@@ -102,11 +102,12 @@ export default {
 
 .operations {
   a {
+    color: dimgray;
     text-decoration: none;
 
     &:hover, &:active, &:focus{
         color: white;
-        background: black;
+        background: dimgray;
     }
   }
 }
