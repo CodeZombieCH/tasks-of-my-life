@@ -12,3 +12,6 @@ Content-Type: application/json
     "title": "new task created by REST client"
   }
 }
+
+### Delete task
+DELETE http://localhost:3000/tasks/6

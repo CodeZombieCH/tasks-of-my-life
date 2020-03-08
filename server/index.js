@@ -80,4 +80,18 @@ app.post('/tasks', async function (req, res) {
   }
 })
 
+app.delete('/tasks/:id', async function (req, res) {
+  try {
+    var taskId = parseInt(req.params.id)
+
+    await persistance.deleteTask(taskId)
+
+    res.status(204)
+  } catch (ex) {
+    console.error(ex)
+    res.status(400)
+    res.json({ error: ex })
+  }
+})
+
 app.listen(port, () => console.log(`tasks-of-my-life-server listening on port ${port}!`))

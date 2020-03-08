@@ -68,4 +68,31 @@ describe('The Persistance class', () => {
     // Act
     await expectAsync(persistance.createChildTask(parentTaskId, task)).toBeRejected('Not a valid integer')
   })
+
+  it('can find the parent of a task ID', async () => {
+    // Arrange
+    const taskId = 10
+
+    // Act
+    const parent = await persistance.getParentTask(taskId)
+    expect(parent.id).toBe(2)
+  })
+
+  it('can delete a task', async () => {
+    // Arrange
+    const taskId = 5
+    const parentTaskId = 2
+
+    // Act
+    await persistance.deleteTask(taskId)
+
+    // Assert
+    // Assert parent task
+    const actualParentTask = await persistance.getTask(parentTaskId)
+    expect(actualParentTask.attributes.children).toBeDefined()
+    expect(actualParentTask.attributes.children).not.toContain(taskId)
+
+    // Assert child task
+    // await expectAsync(persistance.getTask(taskId)).toBeRejected()
+  })
 })

@@ -6,11 +6,16 @@ const fileNamePattern = new RegExp(/(\.?)(\d+)\.md/)
 
 class Persistance {
   constructor (dataDirectoryPath) {
+    if (!dataDirectoryPath.endsWith('/')) dataDirectoryPath += '/'
     this.dataDirectoryPath = dataDirectoryPath
   }
 
   getRoot () {
     return this.getTask(0)
+  }
+
+  getPath (taskId) {
+    return `${this.dataDirectoryPath}${taskId}.md`
   }
 
   getTask (taskId) {
@@ -19,7 +24,7 @@ class Persistance {
         throw new Error('Not a valid integer')
       }
 
-      fs.readFile(`${this.dataDirectoryPath}/${taskId}.md`, 'utf8', (error, data) => {
+      fs.readFile(this.getPath(taskId), 'utf8', (error, data) => {
         if (error) throw error
 
         // Load front matter
@@ -47,7 +52,7 @@ class Persistance {
       fileContent += '\n'
       fileContent += task.body
 
-      fs.writeFile(`${this.dataDirectoryPath}/${task.id}.md`, fileContent, (error) => {
+      fs.writeFile(this.getPath(task.id), fileContent, (error) => {
         if (error) throw error
         resolve(fileContent)
       })
@@ -88,6 +93,50 @@ class Persistance {
     return newTask.id
   }
 
+  async deleteTask (taskId) {
+    const task = await this.getTask(taskId)
+
+    if (!task) {
+      throw new Error(`Task with ID ${taskId} does not exist`)
+    }
+
+    if (task.attributes.children.length > 0) {
+      throw new Error(`Refused to delete task ${taskId} because it has children`)
+    }
+
+    const parentTask = await this.getParentTask(taskId)
+    if (!parentTask) {
+      console.warn(`Data inconsistency detected: orphaned task ${taskId}`)
+    }
+
+    // Remove child from parent
+    const index = parentTask.attributes.children.indexOf(taskId)
+    if (index === -1) {
+      console.warn('Logic failure detected: child task ID is not in list of parents children')
+    }
+    parentTask.attributes.children.splice(index, 1)
+    await this.setTask(parentTask)
+
+    // Delete task
+    await this.__deleteFile(this.getPath(taskId))
+  }
+
+  __deleteFile (path) {
+    return new Promise((resolve, reject) => {
+      console.log(`Deleting file '${path}'...`)
+
+      fs.unlink(path, (error) => {
+        if (error) {
+          console.log(error)
+          return reject(error)
+        }
+
+        console.log(`Deleting file '${path}' completed successfully`)
+        resolve()
+      })
+    })
+  }
+
   findNextId () {
     return new Promise((resolve, reject) => {
       fs.readdir(this.dataDirectoryPath, (error, files) => {
@@ -106,6 +155,26 @@ class Persistance {
         resolve(max + 1)
       })
     })
+  }
+
+  async getParentTask (taskId, currentTaskId = 0) {
+    const currentTask = await this.getTask(currentTaskId)
+
+    // Check current
+    if (currentTask.attributes.children.includes(taskId)) {
+      return currentTask
+    }
+
+    // Recursively search children
+    for (const childTaskId of currentTask.attributes.children) {
+      const result = await this.getParentTask(taskId, childTaskId)
+      if (result) {
+        return result
+      }
+    }
+
+    // Nothing found
+    return null
   }
 }
 
