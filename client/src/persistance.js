@@ -43,4 +43,29 @@ export class Persistance {
       console.log('updateCompletionDate failed', err)
     }
   }
+
+  async createChild (parentNodeId, node) {
+    try {
+      const url = `${this.baseUrl}node?` + new URLSearchParams({
+        parentNodeId
+      })
+      console.log(url)
+
+      const response = await fetch(url, {
+        method: 'POST',
+        cache: 'default', // *default, no-cache, reload, force-cache, only-if-cached
+        credentials: 'same-origin',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        redirect: 'follow',
+        body: JSON.stringify(node)
+      })
+
+      const data = await response.json()
+      return data
+    } catch (err) {
+      console.log('createNode failed', err)
+    }
+  }
 }

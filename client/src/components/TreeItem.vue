@@ -58,8 +58,10 @@ export default {
         console.log(ex)
       }
     },
-    add () {
+    async add () {
       console.log(`Creating child node for node id ${this.nodeId}`)
+      const name = window.prompt('Name')
+      await store.addTask(this.nodeId, name)
     },
     dumpNode () {
       console.log(this.node)
