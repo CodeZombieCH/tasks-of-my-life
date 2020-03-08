@@ -54,15 +54,19 @@ class Persistance {
     })
   }
 
-  async createChild (parentNodeId) {
+  async createChild (parentNodeId, node) {
     const parentNode = await this.getNode(parentNodeId)
+
+    if (!parentNode) {
+      throw new Error(`Parent with ID ${parentNodeId} does not exist`)
+    }
 
     // Create new child node
     const nextId = await this.findNextId()
     const newNode = {
       id: nextId,
       attributes: {
-        title: 'New node',
+        title: node.attributes.title,
         completionDate: null,
         children: []
       },
@@ -78,6 +82,10 @@ class Persistance {
     }
     parentNode.attributes.children.push(nextId)
     await this.setNode(parentNode)
+
+    // We intentionally do not return the created node but only its ID
+    // If the data of the newly created node is needed, it should be reloaded by client
+    return newNode.id
   }
 
   findNextId () {

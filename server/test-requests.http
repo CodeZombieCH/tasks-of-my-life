@@ -1,0 +1,10 @@
+
+# Create new child
+POST http://localhost:3000/node?parentNodeId=2
+Content-Type: application/json
+
+{
+  "attributes": {
+    "title": "new node created by REST client"
+  }
+}
