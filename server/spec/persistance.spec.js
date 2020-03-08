@@ -1,7 +1,7 @@
 const Persistance = require('../persistance')
 
 describe('The Persistance class', () => {
-  const persistance = new Persistance('../data/')
+  const persistance = new Persistance('test/temp')
 
   it('can read the root task correctly', async () => {
     const task = await persistance.getTask(0)
@@ -36,7 +36,7 @@ describe('The Persistance class', () => {
     }
 
     // Act
-    const newChildId = await persistance.createChild(parentTaskId, task)
+    const newChildId = await persistance.createChildTask(parentTaskId, task)
 
     // Assert
     // Assert child task
@@ -66,6 +66,6 @@ describe('The Persistance class', () => {
     }
 
     // Act
-    await expectAsync(persistance.createChild(parentTaskId, task)).toBeRejected('Not a valid integer')
+    await expectAsync(persistance.createChildTask(parentTaskId, task)).toBeRejected('Not a valid integer')
   })
 })
