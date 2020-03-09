@@ -1,4 +1,4 @@
-const fs = require('fs')
+const fsp = require('fs').promises
 const frontMatter = require('front-matter')
 const jsYaml = require('js-yaml')
 
@@ -18,45 +18,42 @@ class Persistance {
     return `${this.dataDirectoryPath}${taskId}.md`
   }
 
-  getTask (taskId) {
-    return new Promise((resolve) => {
-      if (!Number.isInteger(taskId)) {
-        throw new Error('Not a valid integer')
-      }
+  async getTask (taskId) {
+    if (!Number.isInteger(taskId)) {
+      throw new Error('Not a valid integer')
+    }
 
-      fs.readFile(this.getPath(taskId), 'utf8', (error, data) => {
-        if (error) throw error
+    const path = this.getPath(taskId)
+    const data = await fsp.readFile(path, 'utf8')
 
-        // Load front matter
-        const task = frontMatter(data)
+    // Load front matter
+    const task = frontMatter(data)
 
-        // Enrich with task ID
-        task.id = taskId
+    // Enrich with task ID
+    task.id = taskId
 
-        resolve(task)
-      })
-    })
+    return task
   }
 
-  setTask (task) {
-    return new Promise((resolve) => {
-      // TODO: Validate
-      if (typeof task.id === 'undefined') {
-        throw Error('Task ID undefined')
-      }
+  async setTask (task) {
+    // TODO: Validate
+    if (typeof task.id === 'undefined') {
+      throw Error('Task ID undefined')
+    }
 
-      let fileContent = ''
-      fileContent += '---\n'
-      fileContent += jsYaml.safeDump(task.attributes)
-      fileContent += '---\n'
-      fileContent += '\n'
-      fileContent += task.body
+    let fileContent = ''
+    fileContent += '---\n'
+    fileContent += jsYaml.safeDump(task.attributes)
+    fileContent += '---\n'
+    fileContent += '\n'
+    fileContent += task.body
 
-      fs.writeFile(this.getPath(task.id), fileContent, (error) => {
-        if (error) throw error
-        resolve(fileContent)
-      })
-    })
+    const path = this.getPath(task.id)
+    console.log(`Writing file '${path}'...`)
+    await fsp.writeFile(path, fileContent)
+    console.log(`Writing file '${path}' completed successfully`)
+
+    return fileContent
   }
 
   async createChildTask (parentTaskId, task) {
@@ -118,43 +115,26 @@ class Persistance {
     await this.setTask(parentTask)
 
     // Delete task
-    await this.__deleteFile(this.getPath(taskId))
+    const path = this.getPath(taskId)
+    console.log(`Deleting file '${path}'...`)
+    await fsp.unlink(path)
+    console.log(`Deleting file '${path}' completed successfully`)
   }
 
-  __deleteFile (path) {
-    return new Promise((resolve, reject) => {
-      console.log(`Deleting file '${path}'...`)
+  async findNextId () {
+    const files = await fsp.readdir(this.dataDirectoryPath)
 
-      fs.unlink(path, (error) => {
-        if (error) {
-          console.log(error)
-          return reject(error)
-        }
+    // files.forEach(file => {
+    //   console.log(file)
+    // })
 
-        console.log(`Deleting file '${path}' completed successfully`)
-        resolve()
-      })
-    })
-  }
+    const ids = files
+      .map(f => fileNamePattern.exec(f))
+      .filter(r => r != null)
+      .map(r => r[2])
 
-  findNextId () {
-    return new Promise((resolve, reject) => {
-      fs.readdir(this.dataDirectoryPath, (error, files) => {
-        if (error) throw error
-
-        // files.forEach(file => {
-        //   console.log(file)
-        // })
-
-        const ids = files
-          .map(f => fileNamePattern.exec(f))
-          .filter(r => r != null)
-          .map(r => r[2])
-
-        const max = Math.max.apply(null, ids)
-        resolve(max + 1)
-      })
-    })
+    const max = Math.max.apply(null, ids)
+    return max + 1
   }
 
   async getParentTask (taskId, currentTaskId = 0) {

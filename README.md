@@ -3,6 +3,11 @@
 A task list for a whole life
 
 
+## Requirements
+
+- Node.js (tested with v12.16.1)
+
+
 ## Usage
 
 Start server
@@ -18,7 +23,7 @@ Start client
 Open browser and navigate to http://localhost:8080/
 
 
-## Componentes
+## Components
 
 ### Client
 
