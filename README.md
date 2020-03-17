@@ -2,6 +2,8 @@
 
 A task list for a whole life
 
+![Screenshot](screenshot.png)
+
 
 ## Requirements
 
