@@ -57,6 +57,50 @@ class Store {
 
     return newTask
   }
+
+  async deleteTask (taskId) {
+    // Send to server
+    await persistance.deleteTask(taskId)
+
+    // Find parent
+    const parentTask = await this.getParentTask(taskId)
+
+    if (!parentTask) {
+      throw new Error(`No parent found for task #${taskId}`)
+    }
+
+    // Remove child from parent
+    const index = parentTask.attributes.children.indexOf(taskId)
+    if (index === -1) {
+      console.warn('Logic failure detected: child task ID is not in list of parents children')
+    }
+    parentTask.attributes.children.splice(index, 1)
+
+    // Delete task
+    if (!this.tasks.delete(taskId)) {
+      console.warn(`Data inconsistency: Store was note aware of task ${taskId}`)
+    }
+  }
+
+  async getParentTask (taskId, currentTaskId = 0) {
+    const currentTask = await this.getTaskById(currentTaskId)
+
+    // Check current
+    if (currentTask.attributes.children.includes(taskId)) {
+      return currentTask
+    }
+
+    // Recursively search children
+    for (const childTaskId of currentTask.attributes.children) {
+      const result = await this.getParentTask(taskId, childTaskId)
+      if (result) {
+        return result
+      }
+    }
+
+    // Nothing found
+    return null
+  }
 }
 
 export default new Store()

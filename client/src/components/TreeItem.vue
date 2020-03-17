@@ -12,7 +12,11 @@
         <span><strong>{{ task.attributes.title }}</strong></span>
         <span class="meta">&nbsp;#{{ task.id }}</span>
         <span class="meta">&nbsp;({{ task.attributes.children.length }})</span>
-        <span class="operations">&nbsp;<a v-on:click="add" href="#">[+]</a></span>
+        <span class="operations">
+          &nbsp;
+          <a v-on:click="add" href="#">[+]</a>
+          <a v-on:click="deleteTask" v-if="task.attributes.children.length === 0" href="#">[-]</a>
+        </span>
       </div>
       <ul>
         <TreeItem
@@ -26,8 +30,6 @@
 </template>
 
 <script>
-
-import store from '../store'
 
 export default {
   name: 'TreeItem',
@@ -49,7 +51,7 @@ export default {
 
       this.loading = true
       try {
-        const task = await store.getTaskById(this.taskId)
+        const task = await this.$store.getTaskById(this.taskId)
         this.task = task
         console.log(`Loading task ${this.taskId} completed`, this.task)
         this.loading = false
@@ -61,7 +63,15 @@ export default {
     async add () {
       console.log(`Creating child task for task ID ${this.taskId}`)
       const name = window.prompt('Name')
-      await store.addTask(this.taskId, name)
+      if (name === null) return
+      await this.$store.addTask(this.taskId, name)
+    },
+    async deleteTask () {
+      console.log(`Deleting task with task ID ${this.taskId}`)
+      if (!window.confirm(`Do you really want to delete task ${this.task.attributes.title} #${this.taskId}?`)) {
+        return
+      }
+      await this.$store.deleteTask(this.taskId)
     },
     dumpTask () {
       console.log(this.task)
@@ -83,7 +93,7 @@ export default {
         console.log(`Set completion date to ${completionDate}`, this.task)
 
         // Send updated completion date to server
-        await store.setTaskCompletionDate(this.task, completionDate)
+        await this.$store.setTaskCompletionDate(this.task, completionDate)
       }
     }
   }
@@ -105,7 +115,7 @@ export default {
     color: dimgray;
     text-decoration: none;
 
-    &:hover, &:active, &:focus{
+    &:hover, &:active {
         color: white;
         background: dimgray;
     }

@@ -68,4 +68,17 @@ export class Persistance {
       console.error('createChildTask failed', ex)
     }
   }
+
+  async deleteTask (taskId) {
+    try {
+      await fetch(`${this.baseUrl}tasks/${taskId}`, {
+        method: 'DELETE',
+        cache: 'default', // *default, no-cache, reload, force-cache, only-if-cached
+        credentials: 'same-origin',
+        redirect: 'follow'
+      })
+    } catch (ex) {
+      console.error('deleteTask failed', ex)
+    }
+  }
 }
