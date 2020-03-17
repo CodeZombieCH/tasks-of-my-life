@@ -14,8 +14,8 @@
         <span class="meta">&nbsp;({{ task.attributes.children.length }})</span>
         <span class="operations">
           &nbsp;
-          <a v-on:click="add" href="#">[+]</a>
-          <a v-on:click="deleteTask" v-if="task.attributes.children.length === 0" href="#">[-]</a>
+          <a v-on:click.prevent="add" href="#">[+]</a>
+          <a v-on:click.prevent="deleteTask" v-if="task.attributes.children.length === 0" href="#">[-]</a>
         </span>
       </div>
       <ul>
