@@ -2,9 +2,9 @@
   "name": "tasks-of-my-life-server",
   "version": "0.1.0",
   "description": "The Tasks of my Life server",
-  "main": "index.js",
+  "main": "src/index.js",
   "scripts": {
-    "serve": "node index.js",
+    "serve": "node src/index.js",
     "test": "./test/prepare.sh && jasmine"
   },
   "author": "Marc-André Bühler",

@@ -4,7 +4,7 @@ const jsYaml = require('js-yaml')
 
 const fileNamePattern = new RegExp(/(\.?)(\d+)\.md/)
 
-class Persistance {
+class FileSystemProviderV1 {
   constructor (dataDirectoryPath) {
     if (!dataDirectoryPath.endsWith('/')) dataDirectoryPath += '/'
     this.dataDirectoryPath = dataDirectoryPath
@@ -158,4 +158,4 @@ class Persistance {
   }
 }
 
-module.exports = Persistance
+module.exports = FileSystemProviderV1

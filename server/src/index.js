@@ -7,14 +7,14 @@ const port = 3000
 app.use(cors())
 app.use(bodyParser.json())
 
-const Persistance = require('./persistance')
-const persistance = new Persistance('../data/')
+const FileSystemProvider = require('./provider/filesystem.v1')
+const provider = new FileSystemProvider('../data/')
 
 app.get('/tasks/:id', async function (req, res) {
   try {
     var taskId = parseInt(req.params.id)
 
-    const task = await persistance.getTask(taskId)
+    const task = await provider.getTask(taskId)
     res.status(200)
     res.json(task)
   } catch (ex) {
@@ -27,7 +27,7 @@ app.put('/tasks/:id/completionDate', async function (req, res) {
     var taskId = parseInt(req.params.id)
 
     // Load task
-    let task = await persistance.getTask(taskId)
+    let task = await provider.getTask(taskId)
 
     if (!task) {
       res.status(404)
@@ -37,10 +37,10 @@ app.put('/tasks/:id/completionDate', async function (req, res) {
     // Update task
     const completionDate = req.body.completionDate
     task.attributes.completionDate = completionDate
-    await persistance.setTask(task)
+    await provider.setTask(task)
 
     // Reload update task
-    task = await persistance.getTask(taskId)
+    task = await provider.getTask(taskId)
 
     res.status(200)
     res.json({ completionDate: task.attributes.completionDate })
@@ -68,10 +68,10 @@ app.post('/tasks', async function (req, res) {
     }
 
     // Create task
-    const newChildId = await persistance.createChildTask(parentTaskId, task)
+    const newChildId = await provider.createChildTask(parentTaskId, task)
 
     // Reload created task
-    const createdTask = await persistance.getTask(newChildId)
+    const createdTask = await provider.getTask(newChildId)
 
     res.status(201)
     res.json(createdTask)
@@ -84,9 +84,10 @@ app.delete('/tasks/:id', async function (req, res) {
   try {
     var taskId = parseInt(req.params.id)
 
-    await persistance.deleteTask(taskId)
+    await provider.deleteTask(taskId)
 
     res.status(204)
+    res.send()
   } catch (ex) {
     console.error(ex)
     res.status(400)
