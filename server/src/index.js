@@ -7,7 +7,7 @@ const port = 3000
 app.use(cors())
 app.use(bodyParser.json())
 
-const FileSystemProvider = require('./provider/filesystem.v1')
+const FileSystemProvider = require('./provider/filesystem.v2')
 const provider = new FileSystemProvider('../data/')
 
 app.get('/tasks/:id', async function (req, res) {
