@@ -20,9 +20,9 @@
       </div>
       <ul>
         <TreeItem
-          v-for="(child, index) in task.attributes.children"
-          :key="index"
-          :taskId="child">
+          v-for="(childTaskId) in task.attributes.children"
+          :key="childTaskId"
+          :taskId="childTaskId">
         </TreeItem>
       </ul>
     </template>
